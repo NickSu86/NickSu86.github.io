@@ -1,10 +1,10 @@
 # Basic
 title: Mr.可豆
 subtitle: 可豆先生的生活，技术和学习
-welcome_message: <a href="https://github.com/onevcat/vno-jekyll" target="_blank">Download the theme</a>
-creator: <a href="http://onev.cat">@onevcat</a>
+#welcome_message: <a href="https://github.com/onevcat/vno-jekyll" target="_blank">Download the theme</a>
+#creator: <a href="http://onev.cat">@onevcat</a>
 
-url: "http://vno.onevcat.com"
+#url: "http://vno.onevcat.com"
 
 permalink: /:year/:month/:title/
 
@@ -12,7 +12,7 @@ permalink: /:year/:month/:title/
 highlighter: rouge
 
 # supported colors: blue, green, purple, red, orange or slate. If you need clear, leave it empty.
-cover_color: red
+#cover_color: red
 
 # The blog button should not be removed.
 blog_button:
