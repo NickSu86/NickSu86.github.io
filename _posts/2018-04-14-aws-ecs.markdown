@@ -1,25 +1,34 @@
 ---
 layout: post
-title: Sample Post
-date: {{ site.time | date_to_long_string }}
+title: AWS系列之ECS
+date: 2018-04-14 21:30:00.000000000 +08:00
 ---
 
-You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
+相信做IT的朋友没有没听说过容器的吧，没听过容器应该也听说过docker吧。虽然我这篇文章不聊docker，但是我要聊的是docker编排工具，aws的ecs，不过说到容器的编排工具，相信更耳熟能详的是kubernetes 和 mesos吧。
 
-To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.ext` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
+首先简单介绍一下docker，或者说容器，其实就是利用内核的功能，cgroup提供的控制和namespace提供的隔离来在OS层面划分出隔离的区间。docker的使用跟常见的虚拟机还不一样，因为常见的虚拟机是有一层hypervisor的，也就是说hypervisor在操作系统(KVM , Virtualbox)或者说硬件层面（exsi）提供了一个翻译工作。但是docker不需要这样子，因此docker是一个共享内核的一个东西，所以带来的优点就是docker非常轻量级别，通常一个镜像也就100+M，而且启动迅速，所以当docker出问题的时候，更多的是干掉重启而不是花时间去troubleshooting .由于docker的这种特性，现在很火的CI/CD就会使用到docker，只要把更新写到docker file里面去，CI直接build这个image，然后直接部署到环境里就可以了。
 
-Jekyll also offers powerful support for code snippets:
+一个两个的docker容易管理，但是成千上万或者更多的时候就不是那么简单了，所以就有了kubernetes , swarm , messos之类的编排工具了。熟悉kubernetes的朋友知道pod是k8s最小的操作单位，但是并不表示pod就是docker,而是说pod可以是一个也可以是多个docker，定义成实现或者提供某种功能的容器的集合。而我们的ECS也有类似的概念，就是task了。
 
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
-{% endhighlight %}
+我们可以从task的定义来看看task到底是一个什么东西：
 
-Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
+1. docker的镜像
+2. CPU，内存
+3. 启动类型（有fargate和ec2两种）
+4. 容器是否需要link
+5. 容器网络类型
+6. 容器fail或者结束时是否重启等操作
+7. 容器启动的命令
+8. 是否需要存储卷
+9. 是否需要端口映射
+10. 环境变量
+11. IAM的role
+12. 安全检查
+13. 日志的记录
+14. 标签
 
-[jekyll-docs]: http://jekyllrb.com/docs/home
-[jekyll-gh]:   https://github.com/jekyll/jekyll
-[jekyll-talk]: https://talk.jekyllrb.com/
+基本上定义一个task需要配置以上至少前8种配置 ， 所以一个task其实就是指定了容器运行的host环境（fargate或者ec2）,容器的网络类型和容器直接的互联，容器的镜像，cpu内存存储，启动的命令和结束时的操作等等。可以说这其实就是定义了一个提供相应服务的容器的配置。但是我定义完这些配置，其实这是写好了一个类似的药方，那我还需要去抓药，煮药一些列过程才能达到我们的目的啊。就像k8s有了pod之后，还有 replicaset , daemonset之类的东西。ECS也提供了一个service， 通过service可以定义task 如何运行。
+
+Service定义了运行哪些task ,运行多少，使用哪种load balancer，task出错时或者结束时怎么处理等等。比如说有个desiredCount的关键字，决定了对应的task需要启动多少实例，还有两个很关键的比例，maximumPercent , minimumHealtyPercent， 决定了最大和最小的RUNNING实例数量，这个在启动和结束还有就是task升级的时候非常实用，跟k8s的rolling update是类似的东西。
+
+service还提供了一个throttle logic的机制，就是当一个task一直没办法进到RUNNING状态时，会进入这种机制，这时重启这个task 的时间间歇会被延迟，然后会触发一个Service Event Message的报警。
