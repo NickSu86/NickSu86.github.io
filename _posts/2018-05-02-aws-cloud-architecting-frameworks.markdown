@@ -1,6 +1,6 @@
 ---
 layout: post
-title: AWS系列之Cloud Well Architecting Frameworks
+title: AWS系列之Well Architecting Frameworks
 ---
 
 终于决定要考AWS的Solution Architect Associate 了，仔细阅读了 [考纲](https://d1.awsstatic-china.com/training-and-certification/docs-sa-assoc/AWS_Certified_Solutions_Architect_Associate_Feb_2018_%20Exam_Guide_v1.5.2.pdf) 发现主要考点还是围绕着 [Well Architected](https://amazonaws-china.com/architecture/well-architected/) 的五个支柱理论，因此这次考试的准备就先从 [Well Architected Framework](https://d1.awsstatic-china.com/whitepapers/architecture/AWS_Well-Architected_Framework.pdf) 开始了。
