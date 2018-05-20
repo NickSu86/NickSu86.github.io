@@ -54,8 +54,6 @@ Available subcommands:
 
 看，这里主要就是我们这个项目的各种管理功能。然后再看看这个文件的内容，
 
-{% highlight ruby %}
-
 ```python
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "projectName.settings")
@@ -69,8 +67,6 @@ if __name__ == "__main__":
         ) from exc
     execute_from_command_line(sys.argv)
 ```
-
-{% endhighlight %}
 
 其实这么几行最主要的就是加载了我们的 projectName.settings 文件，这个文件里主要是这个项目的配置，比如说使用的应用，样本，数据库，语言等等的配置。 django就是根据这个文件去寻找对应的各种功能配置，所以以后新建应用的时候就需要在这里声明添加应用，如果添加了样本的目录，就要在这里的样本对应的地址里添加目录地址。
 
