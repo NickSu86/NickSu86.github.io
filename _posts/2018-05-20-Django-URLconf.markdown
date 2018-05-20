@@ -29,18 +29,18 @@ date: 2018-05-20 22:26:24.000000000 +09:00
 这里就告诉了哪里存放着我们根的 URLconf 了，然后根据这个值去加载根的 URL 解析规则。<u>其实这里我有点不解，就是为什么这里可以直接写 projectName.urls 而不需要写全路径，为什么后面的 Templates 里面的 DIRS 却要写明全路径 ？等我哪天找到这个问题答案再回来补全。</u>
 
 ```python
-urlpatterns = [
-    re_path(r'^$', views.application),
-    re_path(r'admin/$', admin.site.urls),
-    re_path(r'blog/$', views.application),
-    re_path(r'article/(\d{4})$', views.year),
-    re_path(r'(?P<year>\d{4})(?P<month>\d{,2})$', views.new),
-    re_path(r'^article/(?P<year>\d{4}/(?P<month>\d{2}))$', views.year),
-    re_path(r'registers', views.register, name="reg"),
-    re_path(r'^article/\d{4}/(?P<month>\d{2})/$', views.year, {"day": 31}),
-    re_path(r'^article/\d{4}/(?P<month>\d{2})/$', include(views.year), {"day": 31}),
-    re_path(r'form\d+$', include(views.urls)),
-]
+1	urlpatterns = [
+2	    re_path(r'^$', views.application),
+3	    re_path(r'admin/$', admin.site.urls),
+4	    re_path(r'blog/$', views.application),
+5	    re_path(r'article/(\d{4})$', views.year),
+6	    re_path(r'(?P<year>\d{4})(?P<month>\d{,2})$', views.new),
+7	    re_path(r'^article/(?P<year>\d{4}/(?P<month>\d{2}))$', views.year),
+8	    re_path(r'registers', views.register, name="reg"),
+9	    re_path(r'^article/\d{4}/(?P<month>\d{2})/$', views.year, {"day": 31}),
+10	    re_path(r'^article/\d{4}/(?P<month>\d{2})/$', include(views.year), {"day": 31}),
+11	    re_path(r'form\d+$', include(views.urls)),
+12	]
 ```
 
 这里就是一个 urlpatterns 的写法了，其实就是 python 的一个 list . Django 根据定义找到这里后，就从第2行开始，按照顺序逐一匹配用户的请求 url , （注意，前面的数字顺序是我自己加上的，真实的环境里是没有的）首先这里使用了 re_path 主要是为了使用正则，如果不要正则也可以用 path , 但是使用正则可以减少我们很多麻烦，比如说我可能用户列表有几十上百号用户，用户的详细信息的url可能是www.example.com/user1/ ， 第二号用户可能是www.example.com/user2/ ，第三的可能是www.example.com/user3/ ，这样下去我不使用正则，那有一千个用户就要写一千行，这样对于开发人员来说累还不说，效率还地下，万一用户的链接改了，可能就要牵扯到成百上千行的修改。因此我是强烈建议使用正则啊，像这种情况使用正则只要写一行就够了
