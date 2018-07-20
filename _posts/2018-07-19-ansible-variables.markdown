@@ -137,4 +137,110 @@ ok: [localhost] => (item=[{u'name': u'bob'}, u'dan']) => {
 }
 ```
 
-改天再拓展多级嵌套怎么解决。
+上面的例子都是用 with_items , 也就是说把变量作为 list 来遍历，但是万一我的变量不是 list 而是 dictionary , 咋办呢？ ansible 还提供了 with_dict, 比如说变量如下：
+
+```
+languages:
+  ruby: Elite
+  python: Elite
+  dotnet: Lame
+```
+
+这是一个 dictionary , 那如何遍历他呢，使用 with_items 的时候结果如下：
+
+```yaml
+    - name: "test with dict languages"
+      debug: msg="language is {{ item }}"
+      with_items:
+        - "{{ languages }}"
+      tags:
+        - "3employee"
+```
+
+
+
+```
+PLAY [localhost] ***************************************************************************************************************************
+
+TASK [test with dict languages] ************************************************************************************************************
+ok: [localhost] => (item={u'python': u'Elite', u'dotnet': u'Lame', u'ruby': u'Elite'}) => {
+    "msg": "language is {u'python': u'Elite', u'dotnet': u'Lame', u'ruby': u'Elite'}"
+}
+```
+
+使用 with_dict 的时候则是这样的：
+
+```yaml
+    - name: "test with dict languages"
+      debug: msg="language is {{ item.key }} and {{ item.value }}"
+      with_dict:
+        - "{{ languages }}"
+      tags:
+        - "3employee"
+```
+
+结果如下：
+
+```
+PLAY [localhost] ***************************************************************************************************************************
+
+TASK [test with dict languages] ************************************************************************************************************
+ok: [localhost] => (item={'value': u'Elite', 'key': u'python'}) => {
+    "msg": "language is python and Elite"
+}
+ok: [localhost] => (item={'value': u'Lame', 'key': u'dotnet'}) => {
+    "msg": "language is dotnet and Lame"
+}
+ok: [localhost] => (item={'value': u'Elite', 'key': u'ruby'}) => {
+    "msg": "language is ruby and Elite"
+}
+```
+
+如果刚好我们的 dict 里面嵌套了 list 呢，这时候就可以使用 with_nested 了，比如变量如下：
+
+```
+employee:
+  name: "Example Developer"
+  job: "Developer"
+  skill: "Elite"
+  employed: True
+  foods:
+      - Apple
+      - Orange
+      - Strawberry
+      - Mango
+```
+
+这个变量首先是一个名为 employee 的 dict , 然后这个字典里面有一个 key 为 foods 的列表，如果我们直接使用 with_dict , 那这个列表就会被整个打印出来而不是分开，因此我们这样写：
+
+```yaml
+    - name: "test with employee dict"
+      debug: msg="name is {{ item.0 }} and {{ item.1 }} "
+      when: employee.employed
+      with_nested:
+        - "{{ employee.name }}"
+        - "{{ employee.foods }}"
+      tags:
+        - "2employee"
+```
+
+item.0 表示名为 employee 的字典，这个字典里面有一个 key 为 name 的 item , 然后 item.1 是这个字典里面 key 为 foods 的列表，因此结果如下：
+
+```
+PLAY [localhost] ***************************************************************************************************************************
+
+TASK [test with employee dict] *************************************************************************************************************
+ok: [localhost] => (item=[u'Example Developer', u'Apple']) => {
+    "msg": "name is Example Developer and Apple "
+}
+ok: [localhost] => (item=[u'Example Developer', u'Orange']) => {
+    "msg": "name is Example Developer and Orange "
+}
+ok: [localhost] => (item=[u'Example Developer', u'Strawberry']) => {
+    "msg": "name is Example Developer and Strawberry "
+}
+ok: [localhost] => (item=[u'Example Developer', u'Mango']) => {
+    "msg": "name is Example Developer and Mango "
+}
+```
+
