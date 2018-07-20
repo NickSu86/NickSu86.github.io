@@ -244,3 +244,110 @@ ok: [localhost] => (item=[u'Example Developer', u'Mango']) => {
 }
 ```
 
+再介绍一下 with_subelements 的用法，首先变量如下：
+
+```yaml
+---
+# An employee record
+employee:
+  - name: Martin D'vloper
+    job: Developer
+    skill: Elite
+    employed: True
+    foods:
+        - Apple
+        - Orange
+        - Strawberry
+        - Mango
+    languages:
+        perl: Elite
+        python: Elite
+        pascal: Lame
+    education: |
+        4 GCSEs
+        3 A-Levels
+        BSc in the Internet of Things
+
+  - name: Martin D'vloper1
+    job: Developer1
+    skill: Elite1
+    employed: True
+    foods:
+        - Apple1
+        - Orange1
+        - Strawbe1rry
+        - Mango1
+    languages:
+        perl: El1ite
+        python: E1lite
+        pascal: La1me
+    education: |
+        4 GCSEs1
+        3 A-Levels
+```
+
+其次代码如下：
+
+```yaml
+    - name: "test the dict in var2"
+      debug: msg="{{item.0.name}} likes {{item.1}}"
+      with_subelements:
+        - "{{employee}}"
+        - foods
+```
+
+执行结果类似上面例子：
+
+```
+PLAY [localhost] ***************************************************************************************************************************
+
+TASK [test the dict in var2] ***************************************************************************************************************
+ok: [localhost] => (item=[{u'name': u"Martin D'vloper", u'languages': {u'python': u'Elite', u'pascal': u'Lame', u'perl': u'Elite'}, u'job': u'Developer', u'employed': True, u'skill': u'Elite', u'education': u'4 GCSEs\n3 A-Levels\nBSc in the Internet of Things\n'}, u'Apple']) => {
+    "msg": "Martin D'vloper likes Apple"
+}
+ok: [localhost] => (item=[{u'name': u"Martin D'vloper", u'languages': {u'python': u'Elite', u'pascal': u'Lame', u'perl': u'Elite'}, u'job': u'Developer', u'employed': True, u'skill': u'Elite', u'education': u'4 GCSEs\n3 A-Levels\nBSc in the Internet of Things\n'}, u'Orange']) => {
+    "msg": "Martin D'vloper likes Orange"
+}
+ok: [localhost] => (item=[{u'name': u"Martin D'vloper", u'languages': {u'python': u'Elite', u'pascal': u'Lame', u'perl': u'Elite'}, u'job': u'Developer', u'employed': True, u'skill': u'Elite', u'education': u'4 GCSEs\n3 A-Levels\nBSc in the Internet of Things\n'}, u'Strawberry']) => {
+    "msg": "Martin D'vloper likes Strawberry"
+}
+ok: [localhost] => (item=[{u'name': u"Martin D'vloper", u'languages': {u'python': u'Elite', u'pascal': u'Lame', u'perl': u'Elite'}, u'job': u'Developer', u'employed': True, u'skill': u'Elite', u'education': u'4 GCSEs\n3 A-Levels\nBSc in the Internet of Things\n'}, u'Mango']) => {
+    "msg": "Martin D'vloper likes Mango"
+}
+ok: [localhost] => (item=[{u'name': u"Martin D'vloper1", u'languages': {u'python': u'E1lite', u'pascal': u'La1me', u'perl': u'El1ite'}, u'job': u'Developer1', u'employed': True, u'skill': u'Elite1', u'education': u'4 GCSEs1\n3 A-Levels\n'}, u'Apple1']) => {
+    "msg": "Martin D'vloper1 likes Apple1"
+}
+ok: [localhost] => (item=[{u'name': u"Martin D'vloper1", u'languages': {u'python': u'E1lite', u'pascal': u'La1me', u'perl': u'El1ite'}, u'job': u'Developer1', u'employed': True, u'skill': u'Elite1', u'education': u'4 GCSEs1\n3 A-Levels\n'}, u'Orange1']) => {
+    "msg": "Martin D'vloper1 likes Orange1"
+}
+ok: [localhost] => (item=[{u'name': u"Martin D'vloper1", u'languages': {u'python': u'E1lite', u'pascal': u'La1me', u'perl': u'El1ite'}, u'job': u'Developer1', u'employed': True, u'skill': u'Elite1', u'education': u'4 GCSEs1\n3 A-Levels\n'}, u'Strawbe1rry']) => {
+    "msg": "Martin D'vloper1 likes Strawbe1rry"
+}
+ok: [localhost] => (item=[{u'name': u"Martin D'vloper1", u'languages': {u'python': u'E1lite', u'pascal': u'La1me', u'perl': u'El1ite'}, u'job': u'Developer1', u'employed': True, u'skill': u'Elite1', u'education': u'4 GCSEs1\n3 A-Levels\n'}, u'Mango1']) => {
+    "msg": "Martin D'vloper1 likes Mango1"
+}
+```
+
+如果在这里使用 with_nested 估计就不行了，因为 nested 的两个需要是 list , 所以如果像最后这个例子里面包含两个dict作为 list , with_nested 就写不了了。所以如果有嵌套还是推荐用 with_subelements , 这样第二个只要写出 key 的名字就可以，前提是这个 key 所对应的 value 是一个 list , 比如这样写执行起来就报错：
+
+```
+    - name: "test the dict in var2"
+      debug: msg="{{item.0.name}} likes {{item.1}}"
+      with_subelements:
+        - "{{employee}}"
+        - languages
+        
+nick@nick-ThinkPad-T61:~/ansible$ ansible-playbook readvar2.yml
+ [WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
+
+
+PLAY [localhost] ***************************************************************************************************************************
+
+TASK [test the dict in var2] ***************************************************************************************************************
+fatal: [localhost]: FAILED! => {"msg": "the key languages should point to a list, got '{u'python': u'Elite', u'pascal': u'Lame', u'perl': u'Elite'}'"}
+
+PLAY RECAP *********************************************************************************************************************************
+localhost                  : ok=0    changed=0    unreachable=0    failed=1   
+```
+
+我把 foods 改成了 languages , 因为 languages 对应是一个 dict , 因此报错。
