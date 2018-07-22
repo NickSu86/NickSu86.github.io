@@ -1,6 +1,6 @@
 ---
 layout: post
-title: ansible-list-dict
+title: Ansible-list 和 dict 的写法区别
 date: 2018-07-21 18:14:16.000000000 +08:00
 ---
 
@@ -184,3 +184,5 @@ ok: [localhost] => (item={u'employed': True, u'skill': u'Elite', u'job': u'Devel
 ```
 
 我们先暂时略过前面的几行 warning , 看 employee1 的执行结果，确实打印出来 name 对应的内容，但是后面还有一些报错，说什么没有这个 key 之类的，这是因为 with_items 把这些 employee1 当成了多个键值对列表，当处理到 name 这一行的时候， key 是 name 没错，打印出内容。但是接下来的几行 key 都不是 name ,所以报错。然后看 employee2 , 这里打印了两个结果，并非循环出错，而是因为我们这里是有两个内容为字典的 item 组成的一个列表，因此读列表里面的地一个值时，这个字典有一个 key 为 name ,打印出来 。然后处理这个列表的下一项，又有一个 key 为 name  的字典，再打印处理， employee2 处理结束。好了，来到 employee3 了，我们看回前面略过的 warning ,说发现了重复的字典 key , 有 employed , skill , job, name 。就是说这个 employee3 里面是一整个字典，并非 employee2 那样的分成列表的两项，因此虽然这里也有两个 name ,但是只打印出来一个结果。注意 warning  里面有这么一句话， using last define value only , 也就是说不管你重复多少个键，ansible 都只会打印最后一个对应的值出来。
+
+最后总结一下，ansible 使用缩进来分割，如果有多行前面带有 - 的话，那就是 list , 如果不是则是 dict 。如果是多个 dict 并列组成一个 list , 那每个 dict 的第一对 key:value 需要有一个 - ，请参考最后这个例子里的变量内容。

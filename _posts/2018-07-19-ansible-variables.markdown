@@ -1,6 +1,6 @@
 ---
 layout: post
-title: ansible-variables
+title: Ansible-variables
 date: 2018-07-19 17:57:22.000000000 +08:00
 ---
 
