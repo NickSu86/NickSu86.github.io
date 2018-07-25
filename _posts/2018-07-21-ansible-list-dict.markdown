@@ -32,19 +32,19 @@ employee3:
 ```
   tasks:
     - name: "test employee1 in var3"
-      debug: msg="{{item.key}}"
+      debug: msg="{{ item.key }}"
       with_dict:
-        - "{{employee1}}"
+        - "{{ employee1 }}"
       ignore_errors: yes
     - name: "test employee2 in var3"
-      debug: msg="{{item.key}}"
+      debug: msg="{{ item.key }}"
       with_dict:
-        - "{{employee2.0}}"
+        - "{{ employee2.0 }}"
       ignore_errors: yes
     - name: "test employee3 in var3"
-      debug: msg="{{item.key}}"
+      debug: msg="{{ item.key }}"
       with_dict:
-        - "{{employee3}}"
+        - "{{ employee3 }}"
       ignore_errors: yes
 ```
 
@@ -53,19 +53,19 @@ employee3:
 ```python
   tasks:
     - name: "test employee1 in var3"
-      debug: msg="{{item.key}}"
+      debug: msg="{{ item.key }}"
       with_dict:
-        - "{{employee1}}"
+        - "{{ employee1 }}"
       ignore_errors: yes
     - name: "test employee2 in var3"
-      debug: msg="{{item.key}}"
+      debug: msg="{{ item.key }}"
       with_dict:
-        - "{{employee2.0}}"
+        - "{{ employee2.0 }}"
       ignore_errors: yes
     - name: "test employee3 in var3"
-      debug: msg="{{item.key}}"
+      debug: msg="{{ item.key }}"
       with_dict:
-        - "{{employee3}}"
+        - "{{ employee3 }}"
       ignore_errors: yes
 ```
 
