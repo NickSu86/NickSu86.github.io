@@ -29,6 +29,27 @@ employee3:
 
 在这里 employee1 是一个列表，剩下两个 employee2 和 employee3 都是字典，区别就在于 employee2 是一个内容为一个字典的单项列表，而 employee3 则是一个字典，怎么区别呢，看下面的例子，我使用的是 with_dict 来判断是否为字典。
 
+```
+  tasks:
+    - name: "test employee1 in var3"
+      debug: msg="{{item.key}}"
+      with_dict:
+        - "{{employee1}}"
+      ignore_errors: yes
+    - name: "test employee2 in var3"
+      debug: msg="{{item.key}}"
+      with_dict:
+        - "{{employee2.0}}"
+      ignore_errors: yes
+    - name: "test employee3 in var3"
+      debug: msg="{{item.key}}"
+      with_dict:
+        - "{{employee3}}"
+      ignore_errors: yes
+```
+
+
+
 ```python
   tasks:
     - name: "test employee1 in var3"
