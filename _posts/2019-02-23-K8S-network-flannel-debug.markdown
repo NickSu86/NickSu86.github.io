@@ -4,13 +4,6 @@ title: 记一次flannel vxlan的debug过程
 date: 2019-02-24 01:14:16.000000000 +08:00
 ---
 
-```shell
-root@node1:~# bridge fdb show | grep 10.0.2.15
-c2:8a:fe:64:a4:f0 dev flannel.1 dst 10.0.2.15 self permanent
-3e:e4:54:15:ee:b3 dev flannel.1 dst 10.0.2.15 self permanent
-root@node1:~# 
-```
-
 自从部署好k8之后，用了一段时间都是自己配置路由，简单的使用 cni 的网络，简直是累得不行，每次加减新节点都得配置路由，因此就部署了 flannel , 结果今天晚上发现在 node 上居然访问不到服务，仔细看才知道节点之间的 pod 竟无法相互 ping 通，因此才有了今晚的这个过程。
 
 首先介绍一下我的这个环境是由一个master和四个node组成的一个集群，工作节点分别是node1,node2,node3和node4,对应的ip地址分别是192.168.1.12{1,2,3,4} ， 之间的网络方案是使用的 flannel 的 vxlan 模式。简单说一下，flannel有三种工作模式，分别是 udp, vxlan 和 gw-host,官网有大致的介绍，请看 [这里](https://coreos.com/flannel/docs/latest/backends.html)
