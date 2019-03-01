@@ -63,7 +63,7 @@ To work around this issue, use --iface option to specify the interface that has 
 If you're running on CoreOS, use cloud-config to set coreos.flannel.interface to $public_ipv4.
 ```
 
- 因此我给我的 daemonset 添加了 --iface eth1 的 option,结果导致整个 daemonset 起不来，报错是`flag provided but not defined: -iface eth1` ，到目前为止我还不知道如何解决这个错误。因此我采用另外一种方式，因为这个 10.0.2.15 对我来说并没啥作用，因此我直接在系统里面禁用掉了这个虚拟网卡，这回这个 daemonset 就能正常运行了，问题到这里也就解决了。但是我这个并不是最好的解决办法，因为有些机器避免不了会使用到多网卡，这时候就应该是自己指定 iface 了。
+这个问题呢，其实有两种解决办法，第一个是禁用掉这个网卡，不过如果禁用了这个虚拟设备的话，以后就无法使用 vagrant 的 provision 功能了，因为这个 10.0.2.15 对我来说并没啥作用，因此我直接在系统里面禁用掉了这个虚拟网卡，这回这个 daemonset 就能正常运行了，问题到这里也就解决了。但是我这个并不是最好的解决办法，因为有些机器避免不了会使用到多网卡，这时候就应该是自己指定 iface 了。
 
 由于我是使用 vagrant 加 ansible 来部署这个集群，因此禁用网卡这个事情就交回给了 vagrant 了，也算是有始有终了，就是在 Vagrantfile 里面加这么一段：
 
@@ -73,4 +73,17 @@ config.vm.provision "shell",
       inline: "sudo sed '/eth0/d' /etc/network/interfaces && sudo systemctl restart networking"
 ```
 
-不过如果禁用了这个虚拟设备的话，以后就无法使用 vagrant 的 provision 功能了。
+第二个解决办法呢，就是使用 flanneld 的 --iface， 因为我是部署的 flanneld 的 daemonset , 因此在环境里执行这个命令， `kubectl -n kube-system edit daemonset kube-flannel` ,然后在对应的 `container`里的`args`添加上`--iface=eth`,如下：
+
+```
+containers:
+      - name: kube-flannel
+        image: quay.io/coreos/flannel:v0.11.0-amd64
+        command:
+        - /opt/bin/flanneld
+        args:
+        - --ip-masq
+        - --kube-subnet-mgr
+        - --iface=eth1     #添加了这一行
+```
+
