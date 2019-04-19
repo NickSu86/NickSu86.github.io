@@ -52,6 +52,20 @@ roleRef:
 
 先说说我是如何解决那个报错的，只要把这个 kubernetes 用户绑定到 system:kubelet-api-admin 的这个 clusterrole, 其实也就是创建一个 clusterrolebinding 就可以了。
 可能很多新用户都不知道apiserver是如何验证用户的，那是因为像使用kubeadm等工具自动部署完集群后会生成一个 admin.kubeconfig, 好像是叫这个名字，然后会要求你把这个文件拷贝到自己的 HOME 目录的 .kube/config ，这样每次执行 kubectl 命令就会自动读取这个文件去验证，看看这个文件就知道里面包含了客户端的证书和 key 。所以呢，我们执行 kubectl 的时候，就是使用这个证书去跟 apiserver 验证的，这个就是 x509 验证，而 apiserver 会把证书的 CN 当作用户名，刚好我们这个证书的 CN 是 kubernetes ，所以这个错误才会说是 `user=kubernetes`,也就是因此我们绑定了这个用户和对应的权限，就可以通过 apiserver 的验证了。 
+我自己也做了个实验验证了一把，首先我创建一个新的证书，并指定CN=usernotexist ， 然后再生成 kubeconfig 以供认证，结果果然报错如下：
+```shell
+nick@x79:/tmp/testcert$ kubectl get pods --kubeconfig=kubeconfig.bak
+Error from server (Forbidden): pods is forbidden: User "usernotexist" cannot list resource "pods" in API group "" in the namespace "default": 
+
+nick@x79:/tmp/testcert$ kubectl create clusterrolebinding master-test --clusterrole admin --user usernotexist
+clusterrolebinding.rbac.authorization.k8s.io/master-test created
+nick@x79:/tmp/testcert$ kubectl get pods --kubeconfig=kubeconfig.bak
+NAME                                  READY   STATUS    RESTARTS   AGE
+busybox-deployment-57b645c6cd-s8n6f   1/1     Running   6          12h
+busybox-deployment-57b645c6cd-sx5nw   1/1     Running   6          12h
+nginx-deployment-6dd86d77d-dm46v      1/1     Running   1          12h
+nginx-deployment-6dd86d77d-g7szj      1/1     Running   1          12h
+```
 
 
 
