@@ -42,14 +42,14 @@ wsrep_node_name='MARIADB'
 wsrep_sst_method=rsync
 wsrep_sst_auth=wsrep_sst_user:password    
 ```
-    1 `wsrep_provider` defines where the galera plugin is, if this not define or is a invalid value, the node will bypass all wsrep request and act as a standard standalone instance.
-    2 `wsrep_cluster_address` tells the mysql where to connect to and communicate within the cluster, never set it to "gcomm://", as it will tell the node to inital a new cluster whenever the mysql restart
-    3 `wsrep_cluster_name` tells the node the cluster name, when the node joins a cluster it will first verify the name
-    4 `wsrep_node_address` tells the galera plugin which address to use in the cluster, by default it will pick up the first network interface
-    5 `wsrep_node_name` tells the node which name it use for logging and in cluster
-    6 `wsrep_sst_method` tells the node how to request state transfer, be awear that the cluster use the same script to send and receive state transfer, so every node in the cluster should use the same setting
-    7 `wsrep_sst_auth` provides the authentication info for the node when requesting state transfer
-    8 `wsrep_on` defines whether replication takes place for updates from the current session.
+    1. `wsrep_provider` defines where the galera plugin is, if this not define or is a invalid value, the node will bypass all wsrep request and act as a standard standalone instance.
+    2. `wsrep_cluster_address` tells the mysql where to connect to and communicate within the cluster, never set it to "gcomm://", as it will tell the node to inital a new cluster whenever the mysql restart
+    3. `wsrep_cluster_name` tells the node the cluster name, when the node joins a cluster it will first verify the name
+    4. `wsrep_node_address` tells the galera plugin which address to use in the cluster, by default it will pick up the first network interface
+    5. `wsrep_node_name` tells the node which name it use for logging and in cluster
+    6. `wsrep_sst_method` tells the node how to request state transfer, be awear that the cluster use the same script to send and receive state transfer, so every node in the cluster should use the same setting
+    7. `wsrep_sst_auth` provides the authentication info for the node when requesting state transfer
+    8. `wsrep_on` defines whether replication takes place for updates from the current session.
 
 2. Create replication user
 ```sql
@@ -62,7 +62,7 @@ FLUSH PRIVILEGES;
 ``` bash
 galera_new_cluster
 ```
-    1 After bootstrapping, the port 4567 and 3306 should be in the listening state, then the cluster is ready
+    1. After bootstrapping, the port 4567 and 3306 should be in the listening state, then the cluster is ready
 
 ### On the other node
 1. create the configuration as the first node has, but only update the `wsrep_node_address` and `wsrep_node_name`
